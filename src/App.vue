@@ -285,7 +285,25 @@ export default {
   <div class="w-100 mt-5 mb-5 razdel">
     <h2>Список вакансий на предприятии</h2>
   </div>
+
   <div class="posts-wrapper">
+    <v-btn
+      class="mt-5 mb-10"
+      append-icon="mdi-account-circle"
+      prepend-icon="$plus"
+      @click="openDialogPosts = true"
+    >
+      Добавить Должность
+      <template v-slot:prepend>
+        <v-icon color="success"></v-icon>
+      </template>
+      <template v-slot:append>
+        <v-icon color="warning"></v-icon>
+      </template>
+      <template v-slot:loader>
+        <v-progress-linear indeterminate></v-progress-linear>
+      </template>
+    </v-btn>
     <v-card
       class="mx-auto overflow-y-auto card-list w-100"
       max-height="600"
@@ -322,23 +340,6 @@ export default {
         </div>
       </v-list>
     </v-card>
-    <v-btn
-      class="mt-5 mb-10"
-      append-icon="mdi-account-circle"
-      prepend-icon="$plus"
-      @click="openDialogPosts = true"
-    >
-      Добавить Должность
-      <template v-slot:prepend>
-        <v-icon color="success"></v-icon>
-      </template>
-      <template v-slot:append>
-        <v-icon color="warning"></v-icon>
-      </template>
-      <template v-slot:loader>
-        <v-progress-linear indeterminate></v-progress-linear>
-      </template>
-    </v-btn>
 
     <v-dialog v-model="openDialogPosts" width="auto">
       <v-card max-width="400" title="Введите данные новой должности">
