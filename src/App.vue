@@ -299,7 +299,7 @@ export default {
       >
         <div class="list-item-item">
           <v-list-item
-            :subtitle="post.price"
+            :subtitle="'Заработная плата:' + ' ' + post.price"
             :title="post.name"
             class="text-body-2"
           />
