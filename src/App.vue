@@ -375,6 +375,7 @@ export default {
       </v-card>
     </v-dialog>
   </div>
+  <Header />
 </template>
 
 <style scoped>
@@ -446,6 +447,7 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center;
+  margin-bottom: 40px;
 }
 
 .input-container {
