@@ -244,7 +244,7 @@ export default {
         </v-card>
       </v-dialog>
     </div>
-    <div class="form">
+    <div class="form" v-if="currentUser.id">
       <h2>Выбранный сотрудник</h2>
       <v-card class="mx-auto" width="400" max-height="800">
         <v-img :src="currentUser.avatar" cover></v-img>
@@ -277,6 +277,7 @@ export default {
         </v-expand-transition>
       </v-card>
     </div>
+    <div v-else><h2>Выберите сотрудника</h2></div>
   </div>
 
   <!--Список вакансий на предприятии-->
