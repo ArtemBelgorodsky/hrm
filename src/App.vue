@@ -277,7 +277,7 @@ export default {
         </v-expand-transition>
       </v-card>
     </div>
-    <div v-else><h2>Выберите сотрудника</h2></div>
+    <div v-else class="form"><h2>Выберите сотрудника</h2></div>
   </div>
 
   <!--Список вакансий на предприятии-->
