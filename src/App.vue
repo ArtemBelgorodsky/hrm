@@ -130,6 +130,35 @@ export default {
       this.fetchDataUsers();
       console.log(data);
     },
+    async updateVacation() {
+      try {
+        const response = await fetch(
+          `${API_URL_USERS}/${this.currentUser.id}`,
+          {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              vacationwith: this.currentUser.vacationwith,
+              vacationby: this.currentUser.vacationby,
+            }),
+          }
+        );
+
+        if (!response.ok) throw new Error('Ошибка обновления');
+        this.fetchDataUsers(); // Обновляем данные
+      } catch (error) {
+        console.error('Ошибка:', error);
+      }
+    },
+    formatVacationDate(dateString) {
+      return new Date(dateString).toLocaleDateString('ru-RU', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+      });
+    },
   },
 
   computed: {
@@ -143,6 +172,14 @@ export default {
       return this.users.filter((user) => {
         return user.name.toLowerCase().includes(filterNameInput);
       });
+    },
+    isVacationActive() {
+      if (!this.currentUser.vacationwith || !this.currentUser.vacationby)
+        return false;
+      const today = new Date();
+      const start = new Date(this.currentUser.vacationwith);
+      const end = new Date(this.currentUser.vacationby);
+      return today >= start && today <= end;
     },
   },
 };
@@ -245,21 +282,33 @@ export default {
       </v-dialog>
     </div>
     <div class="form" v-if="currentUser.id">
-      <h2>Выбранный сотрудник</h2>
-      <v-card class="mx-auto" width="400" max-height="800">
-        <v-img :src="currentUser.avatar" cover></v-img>
+      <h2 class="mb-4 text-h4 text-deep-purple-darken-2">Профиль сотрудника</h2>
+      <v-card class="mx-auto" width="400" elevation="8" rounded="lg">
+        <v-img
+          :src="currentUser.avatar"
+          height="300"
+          cover
+          gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
+        >
+          <v-card-title class="text-white mt-8">
+            <span class="text-h8 font-weight-bold">{{ currentUser.name }}</span>
+          </v-card-title>
+          <v-card-subtitle class="text-white text-h6">
+            <v-icon color="white" class="mr-2">mdi-school</v-icon>
+            {{ currentUser.education }}
+          </v-card-subtitle>
+        </v-img>
 
-        <v-card-title>
-          {{ currentUser.name }}
-        </v-card-title>
-
-        <v-card-subtitle>
-          {{ currentUser.post }}
-        </v-card-subtitle>
-
-        <v-card-actions>
+        <v-card-actions class="px-4 pt-3">
+          <v-chip color="deep-purple-lighten-4" class="mr-2">
+            <v-icon left>mdi-briefcase</v-icon>
+            <div class="text-body-2 black">
+              Опыт: {{ currentUser.experience }} лет
+            </div>
+          </v-chip>
           <v-spacer></v-spacer>
           <v-btn
+            color="deep-purple-darken-2"
             :icon="show ? 'mdi-chevron-up' : 'mdi-chevron-down'"
             @click="show = !show"
           ></v-btn>
@@ -268,10 +317,93 @@ export default {
         <v-expand-transition>
           <div v-show="show">
             <v-divider></v-divider>
+            <v-card-text class="pa-4">
+              <v-list density="compact" class="bg-transparent">
+                <v-list-item>
+                  <template v-slot:prepend>
+                    <v-icon color="deep-purple-darken-2"
+                      >mdi-cake-variant</v-icon
+                    >
+                  </template>
+                  <v-list-item>
+                    Дата рождения:
+                    {{
+                      new Date(currentUser.birthday).toLocaleDateString('ru-RU')
+                    }}
+                  </v-list-item>
+                </v-list-item>
 
-            <v-card-text>
-              Дата рождения:
-              {{ new Date(currentUser.birthday).toLocaleDateString('ru-RU') }}
+                <v-list-item>
+                  <template v-slot:prepend>
+                    <v-icon color="deep-purple-darken-2"
+                      >mdi-certificate</v-icon
+                    >
+                  </template>
+                  <v-list-item>
+                    Образование: {{ currentUser.education }}
+                  </v-list-item>
+                </v-list-item>
+
+                <v-list-item>
+                  <template v-slot:prepend>
+                    <v-icon color="deep-purple-darken-2"
+                      >mdi-clock-outline</v-icon
+                    >
+                  </template>
+                  <v-list-item>
+                    Опыт работы: {{ currentUser.experience }} лет
+                  </v-list-item>
+                </v-list-item>
+
+                <v-list-item>
+                  <template v-slot:prepend>
+                    <v-icon color="deep-purple-darken-2">mdi-beach</v-icon>
+                  </template>
+                  <v-list-item>
+                    <div class="vacation-section mt-2">
+                      <div class="date-pickers">
+                        <v-text-field
+                          v-model="currentUser.vacationwith"
+                          label="Начало отпуска"
+                          type="date"
+                          density="compact"
+                          variant="outlined"
+                          @update:modelValue="updateVacation"
+                        ></v-text-field>
+
+                        <v-text-field
+                          v-model="currentUser.vacationby"
+                          label="Конец отпуска"
+                          type="date"
+                          density="compact"
+                          variant="outlined"
+                          :min="currentUser.vacationwith"
+                          @update:modelValue="updateVacation"
+                        ></v-text-field>
+                      </div>
+
+                      <v-alert
+                        v-if="isVacationActive"
+                        type="success"
+                        density="compact"
+                        class="mt-2"
+                      >
+                        Сотрудник в отпуске
+                      </v-alert>
+
+                      <v-alert
+                        v-else-if="currentUser.vacationwith"
+                        type="info"
+                        density="compact"
+                        class="mt-2"
+                      >
+                        Ближайший отпуск:
+                        {{ formatVacationDate(currentUser.vacationwith) }}
+                      </v-alert>
+                    </div>
+                  </v-list-item>
+                </v-list-item>
+              </v-list>
             </v-card-text>
           </div>
         </v-expand-transition>
